@@ -1,5 +1,7 @@
 # Lint Review
 
+[![Build Status](https://api.travis-ci.org/markstory/lint-review.svg)](https://travis-ci.org/markstory/lint-review)
+
 Lint Review helps automate a tedious part of code review - enforcing coding
 standards. By using the github API Lint Review runs a repository's configured linters
 and updates pull requests with line comments where lint errors would be introduced.
@@ -20,8 +22,9 @@ need to have rabbitmq-server running.
 
 ## Installation
 
-You install Lint Review by cloning the repository and installing dependecies.
-Its recommended that you use `virtualenv` to save shaving yaks down the road.
+You install Lint Review by cloning the repository and installing dependecies,
+or by using docker. If you are not using docker, it is recommended that you use
+`virtualenv` to save shaving yaks down the road.
 
     git clone git://github.com/markstory/lint-review.git
     cd lint-review
@@ -29,14 +32,32 @@ Its recommended that you use `virtualenv` to save shaving yaks down the road.
     source env/bin/activate
     pip install .
 
-In addtion to installing the dependencies for lint-review you will also need to install
-the various lint tools you want to use. Lint-review requires that lint tools be installed
-system wide or on the $PATH of the user running the celery process. `pep8` and `flake8` will
-be installed as dependencies for lint-review, but any other tools will need to be installed
-manually using their respective installers.
+In addtion to installing the dependencies for lint-review you will also need to
+install the various lint tools you want to use. Lint-review requires that lint
+tools be installed relative to the source code. `pep8` and `flake8` will be
+installed as dependencies for lint-review, but any other tools will need to be
+installed using their respective installers. To install all the tools run the following:
 
-Once the dependencies are installed you should configure the lint review applications.
+```bash
+# Install ruby tools
+bundle install --path ./bundle
 
+# Install javascript tools.
+npm install
+
+# Install PHP tools
+php composer.phar install
+```
+
+Once the dependencies are installed you should configure the repositories you want to review.
+
+## Using Docker
+
+To use docker, you'll need to install both docker, docker-compose and possibly boot2docker
+depending on your operating system. Once you have the docker installed, you can boot up lint-review
+into docker using:
+
+    docker-compose up
 
 ## Lint Review Configuration
 
@@ -44,7 +65,7 @@ Lint review is configured through a settings file. Both the web app and celery p
 share the same configuration file, so configuration is easier to manage and share.
 
 * Copy the `settings.sample.py` to `settings.py`
-* Edit the required configuration options.
+* Edit the required configuration options, or set the correct environment variables.
 * Set the `LINTREVIEW_SETTINGS` environment variable to the path
   of your configuration files. In \*nix system this can be done via:
 
@@ -147,6 +168,8 @@ Uses the [flake8](http://pypi.python.org/pypi/flake8) module to check code.
 * `max-line-length` Set maximum allowed line length (default: 79)
 * `format` Set the error format [default|pylint|<custom>]
 * `max-complexity` McCabe complexity threshold
+* `snippet` Interacts with [flake8-snippets](https://pypi.python.org/pypi/flake8-snippets) allowing
+  you to trigger errors on specific snippets you want to disallow.
 
 These options are passed into flake8 as cli options.
 
@@ -175,27 +198,51 @@ to do style checks on PHP, Javascript and or CSS files.
 
 ### Javascript:
 
+#### JSCS
+
+Uses the [JSCS](http://jscs.info/) npm module to check javascript files. Before
+you can use this linter you'll need to install nodejs and the jscs npm package:
+
+    cd path/to/lintreview
+    npm install jscs
+
+*Options*
+
+* `config` Provide a path to the json config file for JSCS.
+* `preset` Set which JSCS preset you want to use. Unused if `config` is set.
+
 #### JSHint
 
 Uses the [jshint](http://jshint.org/) npm module to check javascript files. Before
 you can use this linter you'll need to install nodejs and the jshint npm package:
 
-    cd path/tp/lintreview
+    cd path/to/lintreview
     npm install jshint
 
 *Options*
 
 * `config` Provide a path to the json config file for jshint.
 
+#### ESLint
+
+Uses the [eslint](http://eslint.org/) npm module to check javascript files. Before
+you can use this linter you'll need to install the eslint npm package:
+
+    cd path/to/lintreview
+    npm install eslint
+
+*Options*
+
+* `config` Provide a path to the json config file for eslint.
 
 ### CSS:
 
 #### CSSLint
 
-Uses the [csslint](http://csslint.net/) npm module to check javascript files. Before
-you can use this linter you'll need to install nodejs and the jshint npm package:
+Uses the [csslint](http://csslint.net/) npm module to check css files. Before
+you can use this linter you'll need to install nodejs and the csslint npm package:
 
-    cd path/tp/lintreview
+    cd path/to/lintreview
     npm install csslint
 
 Both warnings and errors will be turned into code review comments. If you don't want 
@@ -216,7 +263,9 @@ You'll need to install it to use it:
 
 *Options*
 
-No options. `.rubocop.yml` files will be respected, as described
+* `display_cop_names` Set to `true` to pass display cop names in offense messages.
+
+`.rubocop.yml` files will be respected, as described
 [here](https://github.com/bbatsov/rubocop#configuration).
 
 ### Puppet:
@@ -234,3 +283,17 @@ You'll need to install it to use it:
 
 No options. `.puppet-lintrc` files will be respected, to allow each project to disable
 checks. A list of checks can be found by running "puppet-lint --help"
+
+### Chef:
+
+#### Foodcritic
+
+Uses the [Foodcritic](http://www.foodcritic.io/) gem to check Chef files.
+You'll need to install Foodcritic:
+
+    gem install foodcritic
+
+*Options*
+
+* `path` If your cookbooks aren't stored in the root, use this to set the path
+  that foodcritic runs against. Example: `path = cookbooks`
