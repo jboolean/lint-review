@@ -99,7 +99,7 @@ class Tool(object):
             tree = ElementTree.fromstring(xml)
         except:
             log.debug('Checkstyle XML - %s', xml)
-            log.error("Unable to parse checkstyleXML from %s.", self.name)
+            log.error("Unable to parse checkstyleXML from %s. String: %s", self.name, xml)
             raise
 
         for f in tree.findall('file'):

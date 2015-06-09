@@ -70,6 +70,48 @@ def start_review():
     return Response(status=204)
 
 
+@app.route("/manual/<action>/<user>/<repo>/pull/<number>/<target_branch>", methods=["POST", "GET"])
+def start_review_manual(action, user, repo, number, target_branch):
+    event = request.headers.get('X-Github-Event')
+    if event == 'ping':
+        return Response(status=200)
+
+    # log.info("Received GitHub pull request notification for "
+    #          "%s %s, (%s) from: %s",
+    #          base_repo_url, number, action, head_repo_url)
+
+    if action not in ("opened", "synchronize", "reopened", "closed"):
+        log.info("Ignored '%s' action." % action)
+        return Response(status=204)
+
+    if action == "closed":
+        try:
+            log.info("Scheduling cleanup for %s/%s", user, repo)
+            cleanup_pull_request.delay(user, repo, number)
+        except:
+            log.error('Could not publish job to celery. '
+                      'Make sure its running.')
+        return Response(status=204)
+    #     return close_review(user, repo, pull_request)
+
+    gh = get_client(app.config, user, repo)
+    try:
+        lintrc = get_lintrc(gh)
+        log.debug("lintrc file contents '%s'", lintrc)
+    except Exception as e:
+        log.warn("Cannot download .lintrc file for '%s'/'%s', "
+                 "skipping lint checks.", user, repo)
+        log.warn(e)
+        return Response(status=204)
+    try:
+        log.info("Scheduling pull request for %s/%s %s", user, repo, number)
+        process_pull_request.delay(user, repo, number, target_branch, lintrc)
+    except:
+        log.error('Could not publish job to celery. Make sure its running.')
+        return Response(status=500)
+    return Response(status=204)
+
+
 def close_review(user, repo, pull_request):
     try:
         log.info("Scheduling cleanup for %s/%s", user, repo)

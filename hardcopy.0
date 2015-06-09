@@ -1,0 +1,50 @@
+
+ -------------- celery@golle-sta-01 v3.0.19 (Chiastic Slide)
+---- **** -----
+--- * ***  * -- Linux-3.13.0-43-generic-x86_64-with-Ubuntu-14.04-trus
+ty
+-- * - **** ---
+- ** ---------- [config]
+- ** ---------- .> broker:      amqp://guest@localhost:5672//
+- ** ---------- .> app:         lintreview.tasks:0x7f2871c30f10
+- ** ---------- .> concurrency: 1 (processes)
+- *** --- * --- .> events:      OFF (enable -E to monitor this worker
+)
+-- ******* ----
+--- ***** ----- [queues]
+ -------------- .> celery:      exchange:celery(direct) binding:celer
+y
+
+
+[2015-03-03 23:06:32,880: WARNING/MainProcess] celery@golle-sta-01 re
+ady.
+^C
+celeryd: Hitting Ctrl+C again will terminate all running tasks!
+
+celeryd: Warm shutdown (MainProcess)
+(env)julianboilen@golle-sta-01:~/lint-review$ celery -A lintreview.ta
+sks worker
+
+ -------------- celery@golle-sta-01 v3.0.19 (Chiastic Slide)
+---- **** -----
+--- * ***  * -- Linux-3.13.0-43-generic-x86_64-with-Ubuntu-14.04-trus
+ty
+-- * - **** ---
+- ** ---------- [config]
+- ** ---------- .> broker:      amqp://guest@localhost:5672//
+- ** ---------- .> app:         lintreview.tasks:0x7f933db68f10
+- ** ---------- .> concurrency: 1 (processes)
+- *** --- * --- .> events:      OFF (enable -E to monitor this worker
+)
+-- ******* ----
+--- ***** ----- [queues]
+ -------------- .> celery:      exchange:celery(direct) binding:celer
+y
+
+
+[2015-03-03 23:12:49,358: WARNING/MainProcess] celery@golle-sta-01 re
+ady.
+
+
+
+

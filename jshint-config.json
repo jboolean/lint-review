@@ -1,0 +1,15 @@
+{
+  "regexdash": true,
+  "browser": true,
+  "wsh": true,
+  "trailing": true,
+
+  "curly": true,
+  "indent": 2,
+  "latedef": true,
+  "quotmark": "single",
+  "yui": true,
+  "es3": true,
+  "gcl": true,
+  "maxcomplexity": 6
+}

@@ -1,10 +1,16 @@
 import logging
+import random
 from lintreview.config import load_config
 from pygithub3.exceptions import NotFound
 
 
 config = load_config()
 log = logging.getLogger(__name__)
+
+OK_COMMENTS = [":+1: Golle! This PR is clean as a whistle!",
+    ":+1: Gee, get a loada this code! No lint errors here.",
+    ":+1: That's some real swell code you've got there. No lint errors.",
+    ":+1: This PR is the bee's knees. No lint errors. Not a one."]
 
 
 class IssueComment(object):
@@ -217,7 +223,8 @@ class Review(object):
             label = config.get('OK_LABEL', IssueLabel.OK_LABEL)
             comment = IssueLabel(label)
         else:
-            body = config.get('OK_COMMENT', ':+1: No lint errors found.')
+            # body = config.get('OK_COMMENT', ':+1: No lint errors found.')
+            body = OK_COMMENTS[random.randrange(0, len(OK_COMMENTS))]
             comment = IssueComment(body)
         comment.publish(self._gh, self._number)
 

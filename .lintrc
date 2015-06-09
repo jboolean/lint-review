@@ -1,2 +1,6 @@
 [tools]
-linters = pep8, flake8
+linters = jshint
+
+[tool_jshint]
+config = ~julianboilen/jshint-config.json
+
